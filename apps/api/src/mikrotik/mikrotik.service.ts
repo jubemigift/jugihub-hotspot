@@ -1,5 +1,6 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { Prisma } from "@prisma/client";
 import { RouterOSClient } from "routeros-client";
 import { PrismaService } from "../prisma/prisma.service";
 
@@ -78,12 +79,13 @@ export class MikrotikService {
   }
 
   private async withClient<T>(work: (client: any) => Promise<T>): Promise<T> {
+    const useTls = this.config.get<string>("MIKROTIK_TLS", "false") === "true";
     const client = new RouterOSClient({
       host: this.config.getOrThrow<string>("MIKROTIK_HOST"),
       port: Number(this.config.get<string>("MIKROTIK_PORT", "8728")),
       user: this.config.getOrThrow<string>("MIKROTIK_USERNAME"),
       password: this.config.getOrThrow<string>("MIKROTIK_PASSWORD"),
-      tls: this.config.get<string>("MIKROTIK_TLS", "false") === "true"
+      ...(useTls ? { tls: {} } : {})
     });
 
     try {
@@ -107,6 +109,8 @@ export class MikrotikService {
   }
 
   private logRouterEvent(action: string, metadata: Record<string, unknown>) {
-    return this.prisma.activityLog.create({ data: { action, entityType: "MikrotikRouter", metadata } });
+    return this.prisma.activityLog.create({
+      data: { action, entityType: "MikrotikRouter", metadata: metadata as Prisma.InputJsonValue }
+    });
   }
 }
