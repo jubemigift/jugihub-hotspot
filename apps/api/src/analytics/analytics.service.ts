@@ -18,7 +18,8 @@ export class AnalyticsService {
         by: ["gateway"],
         where: { status: "SUCCESSFUL" },
         _count: true,
-        _sum: { amountKobo: true }
+        _sum: { amountKobo: true },
+        orderBy: { gateway: "asc" }
       }),
       this.prisma.customer.groupBy({
         by: ["createdAt"],
