@@ -2,11 +2,11 @@
 
 import { CreditCard, UserRound } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
 import { Logo } from "../../components/logo";
 import { api } from "../../lib/api";
 
-export default function BuyPage() {
+function BuyForm() {
   const params = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [gateway, setGateway] = useState("paystack");
@@ -75,5 +75,13 @@ export default function BuyPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function BuyPage() {
+  return (
+    <Suspense fallback={<main className="min-h-screen px-4 py-6 text-white">Loading...</main>}>
+      <BuyForm />
+    </Suspense>
   );
 }
