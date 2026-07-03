@@ -16,4 +16,4 @@ export const PLAN_DURATION = {
   month: 30 * 24 * 60
 } as const;
 
-export type PaymentGatewayCode = "paystack";
+export type PaymentGatewayCode = "flutterwave";

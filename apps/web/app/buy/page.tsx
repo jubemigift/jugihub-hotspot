@@ -22,7 +22,7 @@ function BuyForm() {
         email: form.get("email") || undefined,
         planId: params.get("planId") || form.get("planId"),
         sessionId: params.get("sessionId") || undefined,
-        gateway: "paystack"
+        gateway: "flutterwave"
       })
     });
     window.location.href = response.authorizationUrl;
@@ -57,11 +57,11 @@ function BuyForm() {
               </label>
             )}
             <div className="rounded-md border border-lime-300/40 bg-lime-300/10 px-4 py-3 text-sm font-semibold text-white">
-              Secure checkout is handled by Paystack.
+              Secure checkout is handled by Flutterwave.
             </div>
             <button disabled={loading} className="mt-3 flex h-12 items-center justify-center gap-2 rounded-md bg-lime-300 px-5 font-black text-ink disabled:opacity-60">
               <CreditCard className="h-5 w-5" />
-              {loading ? "Opening Paystack" : "Pay with Paystack"}
+              {loading ? "Opening Flutterwave" : "Pay with Flutterwave"}
             </button>
           </form>
         </div>

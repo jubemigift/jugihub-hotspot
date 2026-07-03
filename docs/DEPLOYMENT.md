@@ -17,7 +17,7 @@ Copy `.env.example` to `.env` and replace every secret:
 - `MIKROTIK_HOST`
 - `MIKROTIK_USERNAME`
 - `MIKROTIK_PASSWORD`
-- Gateway credentials for Paystack, Flutterwave, and Monnify
+- Flutterwave gateway credentials
 
 Use real TLS certificates at `infrastructure/nginx/certs/fullchain.pem` and `privkey.pem`.
 

@@ -23,14 +23,14 @@ export function PlanCard({ plan }: PlanCardProps) {
       </div>
       <h3 className="mt-5 text-2xl font-bold text-white">{plan.name}</h3>
       <p className="mt-2 min-h-12 text-sm leading-6 text-white/70">{plan.description || "Fast hotspot access for your device."}</p>
-      <p className="mt-5 text-5xl font-black text-white">{formatNaira(plan.priceKobo)}</p>
+      <p className="mt-5 text-4xl font-black text-white">{formatNaira(plan.priceKobo)}</p>
       <div className="mt-5 space-y-3 text-sm text-white/80">
         <p className="flex items-center gap-2"><Check className="h-4 w-4 text-success" /> Unlimited browsing</p>
         <p className="flex items-center gap-2"><Check className="h-4 w-4 text-success" /> Starts immediately after payment</p>
-        <p className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-success" /> Secure Paystack checkout</p>
+        <p className="flex items-center gap-2"><ShieldCheck className="h-4 w-4 text-success" /> Secure Flutterwave checkout</p>
       </div>
-      <Link href={`/buy?planId=${plan.id}`} className="mt-6 flex h-12 items-center justify-center rounded-md bg-lime-300 px-4 text-sm font-black text-ink transition hover:bg-white">
-        Buy with Paystack
+      <Link href={`/buy?planId=${plan.id}`} className="mt-6 flex h-11 items-center justify-center rounded-md bg-lime-300 px-4 text-sm font-black text-ink transition hover:bg-white">
+        Buy with Flutterwave
       </Link>
     </article>
   );

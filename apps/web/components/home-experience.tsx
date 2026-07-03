@@ -25,9 +25,9 @@ export function HomeExperience({ plans }: { plans: PlanCardProps["plan"][] }) {
         <div className="mx-auto grid min-h-[76vh] max-w-6xl items-center gap-10 py-14 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
           <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.55 }}>
             <p className="text-sm font-bold uppercase tracking-[0.28em] text-lime-300">Premium hotspot internet</p>
-            <h1 className="mt-5 max-w-3xl text-5xl font-black leading-[1.02] text-white sm:text-6xl lg:text-7xl">Fast WiFi access that starts immediately.</h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-white/76">
-              Buy once, connect instantly. JugiHub Internet gives customers secure Paystack payment, automatic hotspot login, and exact plan expiry without voucher typing.
+            <h1 className="mt-5 max-w-3xl text-4xl font-black leading-[1.04] text-white sm:text-5xl lg:text-6xl">Fast WiFi access that starts immediately.</h1>
+            <p className="mt-6 max-w-2xl text-base leading-7 text-white/76">
+              Buy once, connect instantly. JugiHub Internet gives customers secure Flutterwave payment, automatic hotspot login, and exact plan expiry without voucher typing.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <Link href={firstPlan ? `/buy?planId=${firstPlan.id}` : "/buy"} className="flex h-12 items-center justify-center rounded-md bg-lime-300 px-6 font-black text-ink hover:bg-white">
@@ -44,7 +44,7 @@ export function HomeExperience({ plans }: { plans: PlanCardProps["plan"][] }) {
             <div className="glass relative rounded-lg p-6 shadow-glass">
               <p className="text-sm font-bold uppercase tracking-[0.18em] text-white/58">Featured plan</p>
               <div className="mt-5 flex items-end gap-3">
-                <p className="text-7xl font-black leading-none text-white">{firstPlan ? formatNaira(firstPlan.priceKobo).replace(".00", "") : "₦300"}</p>
+              <p className="text-5xl font-black leading-none text-white sm:text-6xl">{firstPlan ? formatNaira(firstPlan.priceKobo).replace(".00", "") : "₦300"}</p>
                 <p className="pb-2 text-sm font-bold text-lime-300">/ 24 hours</p>
               </div>
               <p className="mt-4 text-xl font-bold text-white">{firstPlan?.name || "Daily Plan"}</p>
@@ -58,12 +58,12 @@ export function HomeExperience({ plans }: { plans: PlanCardProps["plan"][] }) {
       </section>
 
       <section className="border-y border-white/10 bg-white px-4 py-4 text-ink sm:px-6 lg:px-10">
-        <div className="mx-auto grid max-w-6xl gap-3 md:grid-cols-4">
+        <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45 }} className="mx-auto grid max-w-6xl gap-3 md:grid-cols-4">
           {[
             [Router, "Hotspot ready", "Works with MikroTik captive portal"],
             [Headphones, "Local support", "Call or WhatsApp 09013160626"],
             [Zap, "Instant access", "Payment activates internet immediately"],
-            [ShieldCheck, "Paystack only", "Secure Nigerian card and transfer checkout"]
+            [ShieldCheck, "Flutterwave checkout", "Secure Nigerian card and transfer checkout"]
           ].map(([Icon, title, copy]) => (
             <div key={String(title)} className="rounded-md border border-black/10 p-4">
               <Icon className="h-6 w-6 text-violet" />
@@ -71,7 +71,7 @@ export function HomeExperience({ plans }: { plans: PlanCardProps["plan"][] }) {
               <p className="mt-1 text-sm leading-5 text-black/62">{String(copy)}</p>
             </div>
           ))}
-        </div>
+        </motion.div>
       </section>
 
       <section id="plans" className="px-4 py-12 sm:px-6 lg:px-10">
@@ -108,6 +108,36 @@ export function HomeExperience({ plans }: { plans: PlanCardProps["plan"][] }) {
               <p className="mt-2 text-sm leading-6 text-white/68">{copy}</p>
             </div>
           ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="px-4 py-12 sm:px-6 lg:px-10">
+        <div className="mx-auto max-w-6xl">
+          <div className="mb-7">
+            <p className="text-sm font-bold uppercase tracking-[0.2em] text-lime-300">How it works</p>
+            <h2 className="mt-2 text-3xl font-black text-white">From payment to browsing in minutes.</h2>
+          </div>
+          <div className="grid gap-4 md:grid-cols-4">
+            {[
+              ["1", "Choose plan", "Pick an active internet plan from the portal."],
+              ["2", "Enter details", "Add your name, phone number, and optional email."],
+              ["3", "Pay securely", "Flutterwave handles the payment checkout."],
+              ["4", "Start browsing", "Your device is activated automatically after verification."]
+            ].map(([step, title, copy], index) => (
+              <motion.div
+                key={step}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.4, delay: index * 0.06 }}
+                className="rounded-lg border border-white/12 bg-white/8 p-5"
+              >
+                <span className="grid h-9 w-9 place-items-center rounded-md bg-lime-300 text-sm font-black text-ink">{step}</span>
+                <h3 className="mt-5 text-lg font-black text-white">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-white/64">{copy}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>

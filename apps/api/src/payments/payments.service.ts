@@ -4,7 +4,7 @@ import { GatewayCode, PaymentStatus, Prisma } from "@prisma/client";
 import { customAlphabet } from "nanoid";
 import { HotspotService } from "../hotspot/hotspot.service";
 import { PrismaService } from "../prisma/prisma.service";
-import { PaystackGateway } from "./gateways/paystack.gateway";
+import { FlutterwaveGateway } from "./gateways/flutterwave.gateway";
 import { PaymentGateway } from "./payment-gateway.interface";
 import { StartPaymentDto } from "./payments.dto";
 
@@ -16,12 +16,12 @@ export class PaymentsService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly hotspot: HotspotService,
-    private readonly paystack: PaystackGateway
+    private readonly flutterwave: FlutterwaveGateway
   ) {}
 
   async start(dto: StartPaymentDto) {
     const plan = await this.prisma.plan.findFirstOrThrow({ where: { id: dto.planId, isActive: true } });
-    const gateway = this.gateway(dto.gateway ?? this.config.get<"paystack">("PAYMENT_DEFAULT_GATEWAY", "paystack"));
+    const gateway = this.gateway(dto.gateway ?? this.config.get<"flutterwave">("PAYMENT_DEFAULT_GATEWAY", "flutterwave"));
     const reference = `JH-${referenceToken()}`;
     const customer = await this.prisma.customer.upsert({
       where: { phone: dto.phone },
@@ -78,7 +78,7 @@ export class PaymentsService {
       return { autoLoginUrl: hotspotUser.autoLoginUrl, voucherCode: transaction.voucher.code, reference };
     }
 
-    const gateway = this.gateway(transaction.gateway.toLowerCase() as "paystack");
+    const gateway = this.gateway(transaction.gateway.toLowerCase() as "flutterwave");
     const verification = await gateway.verify(reference);
     if (!verification.successful) {
       await this.prisma.transaction.update({
@@ -116,7 +116,7 @@ export class PaymentsService {
   }
 
   async handleWebhook(gatewayCode: string, payload: unknown, rawBody: string, signature?: string) {
-    const gateway = this.gateway(gatewayCode as "paystack");
+    const gateway = this.gateway(gatewayCode as "flutterwave");
     const signatureValid = gateway.verifyWebhookSignature(rawBody, signature);
     const reference = gateway.extractReference(payload);
 
@@ -135,10 +135,10 @@ export class PaymentsService {
     return { received: true };
   }
 
-  private gateway(code: "paystack"): PaymentGateway {
+  private gateway(code: "flutterwave"): PaymentGateway {
     const normalized = code.toLowerCase();
-    if (normalized === "paystack") return this.paystack;
-    throw new BadRequestException("Only Paystack is supported");
+    if (normalized === "flutterwave") return this.flutterwave;
+    throw new BadRequestException("Only Flutterwave is supported");
   }
 
   private async ensureDefaultRouter() {

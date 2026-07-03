@@ -4,7 +4,7 @@
 
 - `GET /api/plans`: list active plans.
 - `POST /api/hotspot/capture`: capture MikroTik session details.
-- `POST /api/payments/start`: create a pending Paystack transaction and return checkout redirect URL.
+- `POST /api/payments/start`: create a pending Flutterwave transaction and return checkout redirect URL.
 - `POST /api/payments/verify`: verify a transaction and activate access.
 - `GET /api/payments/callback/:reference`: gateway redirect verification endpoint.
 - `POST /api/payments/webhook/:gateway`: gateway webhook endpoint.
