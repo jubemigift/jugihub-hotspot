@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { GatewayCode, PaymentStatus } from "@prisma/client";
+import { GatewayCode, PaymentStatus, Prisma } from "@prisma/client";
 import { customAlphabet } from "nanoid";
 import { HotspotService } from "../hotspot/hotspot.service";
 import { PrismaService } from "../prisma/prisma.service";
@@ -129,7 +129,7 @@ export class PaymentsService {
         gateway: gateway.code as GatewayCode,
         eventType: "WEBHOOK",
         signatureValid,
-        payload: gateway.toLogPayload(payload),
+        payload: gateway.toLogPayload(payload) as Prisma.InputJsonValue,
         transaction: reference ? { connect: { reference } } : undefined
       }
     });
