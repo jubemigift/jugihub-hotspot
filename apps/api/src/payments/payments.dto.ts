@@ -21,8 +21,8 @@ export class StartPaymentDto {
   sessionId?: string;
 
   @IsOptional()
-  @IsIn(["paystack", "flutterwave", "monnify"])
-  gateway?: "paystack" | "flutterwave" | "monnify";
+  @IsIn(["paystack"])
+  gateway?: "paystack";
 }
 
 export class VerifyPaymentDto {

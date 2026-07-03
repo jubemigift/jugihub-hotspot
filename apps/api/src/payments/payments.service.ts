@@ -4,8 +4,6 @@ import { GatewayCode, PaymentStatus, Prisma } from "@prisma/client";
 import { customAlphabet } from "nanoid";
 import { HotspotService } from "../hotspot/hotspot.service";
 import { PrismaService } from "../prisma/prisma.service";
-import { FlutterwaveGateway } from "./gateways/flutterwave.gateway";
-import { MonnifyGateway } from "./gateways/monnify.gateway";
 import { PaystackGateway } from "./gateways/paystack.gateway";
 import { PaymentGateway } from "./payment-gateway.interface";
 import { StartPaymentDto } from "./payments.dto";
@@ -18,9 +16,7 @@ export class PaymentsService {
     private readonly prisma: PrismaService,
     private readonly config: ConfigService,
     private readonly hotspot: HotspotService,
-    private readonly paystack: PaystackGateway,
-    private readonly flutterwave: FlutterwaveGateway,
-    private readonly monnify: MonnifyGateway
+    private readonly paystack: PaystackGateway
   ) {}
 
   async start(dto: StartPaymentDto) {
@@ -82,7 +78,7 @@ export class PaymentsService {
       return { autoLoginUrl: hotspotUser.autoLoginUrl, voucherCode: transaction.voucher.code, reference };
     }
 
-    const gateway = this.gateway(transaction.gateway.toLowerCase() as "paystack" | "flutterwave" | "monnify");
+    const gateway = this.gateway(transaction.gateway.toLowerCase() as "paystack");
     const verification = await gateway.verify(reference);
     if (!verification.successful) {
       await this.prisma.transaction.update({
@@ -120,7 +116,7 @@ export class PaymentsService {
   }
 
   async handleWebhook(gatewayCode: string, payload: unknown, rawBody: string, signature?: string) {
-    const gateway = this.gateway(gatewayCode as "paystack" | "flutterwave" | "monnify");
+    const gateway = this.gateway(gatewayCode as "paystack");
     const signatureValid = gateway.verifyWebhookSignature(rawBody, signature);
     const reference = gateway.extractReference(payload);
 
@@ -139,12 +135,10 @@ export class PaymentsService {
     return { received: true };
   }
 
-  private gateway(code: "paystack" | "flutterwave" | "monnify"): PaymentGateway {
+  private gateway(code: "paystack"): PaymentGateway {
     const normalized = code.toLowerCase();
     if (normalized === "paystack") return this.paystack;
-    if (normalized === "flutterwave") return this.flutterwave;
-    if (normalized === "monnify") return this.monnify;
-    throw new BadRequestException("Unsupported payment gateway");
+    throw new BadRequestException("Only Paystack is supported");
   }
 
   private async ensureDefaultRouter() {

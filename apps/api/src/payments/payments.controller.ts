@@ -26,11 +26,9 @@ export class PaymentsController {
   webhook(
     @Param("gateway") gateway: string,
     @Req() req: RawBodyRequest<Request>,
-    @Headers("x-paystack-signature") paystackSignature?: string,
-    @Headers("verif-hash") flutterwaveSignature?: string,
-    @Headers("monnify-signature") monnifySignature?: string
+    @Headers("x-paystack-signature") paystackSignature?: string
   ) {
     const raw = req.rawBody?.toString("utf8") ?? JSON.stringify(req.body);
-    return this.payments.handleWebhook(gateway, req.body, raw, paystackSignature ?? flutterwaveSignature ?? monnifySignature);
+    return this.payments.handleWebhook(gateway, req.body, raw, paystackSignature);
   }
 }

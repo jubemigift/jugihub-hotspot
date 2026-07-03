@@ -16,7 +16,7 @@ PostgreSQL is the source of truth. MikroTik RouterOS remains the network enforce
 2. MikroTik query parameters are posted to `/api/hotspot/capture`.
 3. Customer selects a database-backed plan.
 4. `/api/payments/start` creates or updates the customer, creates a pending transaction, and redirects to the selected gateway.
-5. Gateway callback/webhook is verified by the relevant adapter.
+5. Paystack callback/webhook is verified before activation.
 6. On success, the API creates a RouterOS hotspot user, stores `paymentTime`, `activationTime`, and `expirationTime`, generates a support voucher, and returns an automatic MikroTik login URL.
 7. The expiry worker runs every minute. Expired accounts are disabled and active sessions are disconnected.
 

@@ -1,7 +1,7 @@
 export const BRAND = {
   name: "JugiHub Internet",
-  supportPhone: "+234 000 000 0000",
-  supportEmail: "support@jugihub.com",
+  supportPhone: "09013160626",
+  supportEmail: "jubemigift@gmail.com",
   colors: {
     purple: "#7c3aed",
     black: "#05030a",
@@ -16,4 +16,4 @@ export const PLAN_DURATION = {
   month: 30 * 24 * 60
 } as const;
 
-export type PaymentGatewayCode = "paystack" | "flutterwave" | "monnify";
+export type PaymentGatewayCode = "paystack";

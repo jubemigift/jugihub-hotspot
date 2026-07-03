@@ -9,7 +9,6 @@ import { api } from "../../lib/api";
 function BuyForm() {
   const params = useSearchParams();
   const [loading, setLoading] = useState(false);
-  const [gateway, setGateway] = useState("paystack");
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -23,7 +22,7 @@ function BuyForm() {
         email: form.get("email") || undefined,
         planId: params.get("planId") || form.get("planId"),
         sessionId: params.get("sessionId") || undefined,
-        gateway
+        gateway: "paystack"
       })
     });
     window.location.href = response.authorizationUrl;
@@ -57,19 +56,12 @@ function BuyForm() {
                 <input name="planId" required className="h-12 rounded-md border border-white/14 bg-white/10 px-4 text-white outline-none focus:border-aurora" />
               </label>
             )}
-            <div className="grid gap-2 text-sm font-semibold text-white/80">
-              Gateway
-              <div className="grid grid-cols-3 rounded-md border border-white/14 bg-white/8 p-1">
-                {["paystack", "flutterwave", "monnify"].map((item) => (
-                  <button key={item} type="button" onClick={() => setGateway(item)} className={`h-10 rounded-md text-xs font-bold capitalize ${gateway === item ? "bg-white text-ink" : "text-white/70"}`}>
-                    {item}
-                  </button>
-                ))}
-              </div>
+            <div className="rounded-md border border-lime-300/40 bg-lime-300/10 px-4 py-3 text-sm font-semibold text-white">
+              Secure checkout is handled by Paystack.
             </div>
-            <button disabled={loading} className="mt-3 flex h-12 items-center justify-center gap-2 rounded-md bg-violet px-5 font-bold text-white disabled:opacity-60">
+            <button disabled={loading} className="mt-3 flex h-12 items-center justify-center gap-2 rounded-md bg-lime-300 px-5 font-black text-ink disabled:opacity-60">
               <CreditCard className="h-5 w-5" />
-              {loading ? "Opening Payment" : "Pay Now"}
+              {loading ? "Opening Paystack" : "Pay with Paystack"}
             </button>
           </form>
         </div>
