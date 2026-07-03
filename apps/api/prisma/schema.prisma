@@ -1,0 +1,286 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  OPERATIONS
+  SUPPORT
+  FINANCE
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESSFUL
+  FAILED
+  ABANDONED
+  REVERSED
+}
+
+enum GatewayCode {
+  PAYSTACK
+  FLUTTERWAVE
+  MONNIFY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  DISABLED
+  PENDING
+}
+
+enum NotificationType {
+  PAYMENT_SUCCESS
+  PAYMENT_FAILURE
+  ROUTER_DISCONNECTED
+  NEW_CUSTOMER
+  SUBSCRIPTION_EXPIRED
+  API_FAILURE
+}
+
+model Admin {
+  id           String        @id @default(uuid())
+  email        String        @unique
+  fullName     String
+  passwordHash String
+  role         AdminRole     @default(SUPPORT)
+  isActive     Boolean       @default(true)
+  lastLoginAt  DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  activityLogs ActivityLog[]
+  sessions     Session[]
+
+  @@index([role, isActive])
+}
+
+model Customer {
+  id           String        @id @default(uuid())
+  fullName     String
+  phone        String
+  email        String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  devices      Device[]
+  transactions Transaction[]
+  vouchers     Voucher[]
+  hotspotUsers HotspotUser[]
+  sessions     Session[]
+
+  @@unique([phone])
+  @@index([fullName])
+}
+
+model Plan {
+  id                  String             @id @default(uuid())
+  name                String
+  slug                String             @unique
+  description         String?
+  priceKobo           Int
+  durationMinutes     Int
+  isUnlimited         Boolean            @default(true)
+  dataLimitMb         Int?
+  isActive            Boolean            @default(true)
+  sortOrder           Int                @default(0)
+  bandwidthProfileId  String?
+  bandwidthProfile    BandwidthProfile?  @relation(fields: [bandwidthProfileId], references: [id])
+  transactions        Transaction[]
+  hotspotUsers        HotspotUser[]
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  @@index([isActive, sortOrder])
+}
+
+model BandwidthProfile {
+  id              String        @id @default(uuid())
+  name            String        @unique
+  mikrotikName    String        @unique
+  rateLimit       String?
+  sharedUsers     Int           @default(1)
+  isAdminProfile  Boolean       @default(false)
+  plans           Plan[]
+  hotspotUsers    HotspotUser[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model MikrotikRouter {
+  id                    String        @id @default(uuid())
+  name                  String
+  host                  String
+  apiPort               Int           @default(8728)
+  username              String
+  encryptedPassword     String
+  useTls                Boolean       @default(false)
+  hotspotServer         String
+  isActive              Boolean       @default(true)
+  isOnline              Boolean       @default(false)
+  lastSyncAt            DateTime?
+  lastFailureAt         DateTime?
+  cpuLoad               Float?
+  memoryUsedBytes       BigInt?
+  memoryTotalBytes      BigInt?
+  uptime                String?
+  hotspotUsers          HotspotUser[]
+  sessions              Session[]
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+
+  @@unique([host, apiPort])
+  @@index([isActive, isOnline])
+}
+
+model HotspotUser {
+  id                 String              @id @default(uuid())
+  username           String              @unique
+  passwordHash       String
+  mikrotikUserId     String?
+  mikrotikProfile    String
+  status             SubscriptionStatus  @default(PENDING)
+  paymentTime        DateTime?
+  activationTime     DateTime?
+  expirationTime     DateTime?
+  autoLoginUrl       String?
+  customerId         String
+  customer           Customer            @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  planId             String
+  plan               Plan                @relation(fields: [planId], references: [id])
+  routerId           String
+  router             MikrotikRouter      @relation(fields: [routerId], references: [id])
+  bandwidthProfileId String?
+  bandwidthProfile   BandwidthProfile?   @relation(fields: [bandwidthProfileId], references: [id])
+  vouchers           Voucher[]
+  sessions           Session[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@index([status, expirationTime])
+  @@index([customerId])
+}
+
+model Voucher {
+  id             String       @id @default(uuid())
+  code           String       @unique
+  customerId     String
+  customer       Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  transactionId  String       @unique
+  transaction    Transaction  @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  hotspotUserId  String
+  hotspotUser    HotspotUser  @relation(fields: [hotspotUserId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@index([customerId])
+}
+
+model Transaction {
+  id                 String         @id @default(uuid())
+  reference          String         @unique
+  gatewayReference   String?
+  gateway            GatewayCode
+  status             PaymentStatus  @default(PENDING)
+  amountKobo         Int
+  currency           String         @default("NGN")
+  authorizationUrl   String?
+  paidAt             DateTime?
+  verifiedAt         DateTime?
+  failureReason      String?
+  customerId         String
+  customer           Customer       @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  planId             String
+  plan               Plan           @relation(fields: [planId], references: [id])
+  voucher            Voucher?
+  paymentLogs        PaymentLog[]
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  @@index([status, createdAt])
+  @@index([customerId])
+  @@index([gateway])
+}
+
+model PaymentLog {
+  id             String       @id @default(uuid())
+  transactionId  String?
+  transaction    Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  gateway        GatewayCode
+  eventType      String
+  signatureValid Boolean      @default(false)
+  payload        Json
+  createdAt      DateTime     @default(now())
+
+  @@index([gateway, eventType])
+  @@index([createdAt])
+}
+
+model Session {
+  id              String          @id @default(uuid())
+  macAddress      String?
+  ipAddress       String?
+  userAgent       String?
+  chapId          String?
+  chapChallenge   String?
+  linkLoginOnly   String?
+  linkOrig        String?
+  mikrotikSession String?
+  startedAt       DateTime        @default(now())
+  endedAt         DateTime?
+  adminId         String?
+  admin           Admin?          @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  customerId      String?
+  customer        Customer?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  hotspotUserId   String?
+  hotspotUser     HotspotUser?    @relation(fields: [hotspotUserId], references: [id], onDelete: SetNull)
+  routerId        String?
+  router          MikrotikRouter? @relation(fields: [routerId], references: [id], onDelete: SetNull)
+
+  @@index([macAddress])
+  @@index([customerId, startedAt])
+}
+
+model Device {
+  id          String    @id @default(uuid())
+  macAddress  String
+  ipAddress   String?
+  userAgent   String?
+  customerId  String?
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  firstSeenAt DateTime  @default(now())
+  lastSeenAt  DateTime  @default(now())
+
+  @@unique([macAddress])
+  @@index([customerId])
+}
+
+model Notification {
+  id        String           @id @default(uuid())
+  type      NotificationType
+  title     String
+  message   String
+  readAt    DateTime?
+  metadata  Json?
+  createdAt DateTime         @default(now())
+
+  @@index([type, createdAt])
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  actorAdminId String?
+  actorAdmin  Admin?   @relation(fields: [actorAdminId], references: [id], onDelete: SetNull)
+  action      String
+  entityType  String
+  entityId    String?
+  ipAddress   String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+
+  @@index([action, createdAt])
+  @@index([entityType, entityId])
+}

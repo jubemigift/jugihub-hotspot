@@ -1,0 +1,35 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JugiHub Internet</title>
+  </head>
+  <body>
+    <form id="capture" method="post" action="https://portal.jugihub.local/api/hotspot/capture">
+      <input type="hidden" name="macAddress" value="$(mac)" />
+      <input type="hidden" name="ipAddress" value="$(ip)" />
+      <input type="hidden" name="chapId" value="$(chap-id)" />
+      <input type="hidden" name="chapChallenge" value="$(chap-challenge)" />
+      <input type="hidden" name="linkLoginOnly" value="$(link-login-only)" />
+      <input type="hidden" name="linkOrig" value="$(link-orig)" />
+    </form>
+    <script>
+      const form = document.getElementById("capture");
+      const data = Object.fromEntries(new FormData(form).entries());
+      fetch(form.action, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      })
+        .then((response) => response.json())
+        .then((payload) => {
+          const params = new URLSearchParams({ sessionId: payload.sessionId });
+          window.location.href = "https://portal.jugihub.local/?" + params.toString();
+        })
+        .catch(() => {
+          window.location.href = "https://portal.jugihub.local/";
+        });
+    </script>
+  </body>
+</html>
