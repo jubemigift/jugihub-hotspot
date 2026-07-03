@@ -1,7 +1,6 @@
 import { ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
-import compression = require("compression");
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import { AppModule } from "./app.module";
@@ -12,7 +11,6 @@ async function bootstrap() {
 
   app.setGlobalPrefix("api");
   app.use(helmet());
-  app.use(compression());
   app.use(cookieParser());
   app.enableCors({
     origin: config.get<string>("APP_URL"),
