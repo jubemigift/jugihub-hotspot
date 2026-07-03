@@ -1,7 +1,7 @@
 import { ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { NestFactory } from "@nestjs/core";
-import compression from "compression";
+import compression = require("compression");
 import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import { AppModule } from "./app.module";
@@ -26,7 +26,8 @@ async function bootstrap() {
     })
   );
 
-  await app.listen(config.get<number>("API_PORT", 4000), "0.0.0.0");
+  const port = Number(process.env.PORT ?? config.get<number>("API_PORT", 4000));
+  await app.listen(port, "0.0.0.0");
 }
 
 void bootstrap();
