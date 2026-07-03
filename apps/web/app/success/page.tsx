@@ -2,8 +2,9 @@
 
 import { CheckCircle2, ExternalLink } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function SuccessPage() {
+function SuccessContent() {
   const params = useSearchParams();
   const autoLoginUrl = params.get("autoLoginUrl");
   const voucher = params.get("voucher");
@@ -22,5 +23,13 @@ export default function SuccessPage() {
         )}
       </section>
     </main>
+  );
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense fallback={<main className="grid min-h-screen place-items-center px-4 text-white">Loading...</main>}>
+      <SuccessContent />
+    </Suspense>
   );
 }
